@@ -1,69 +1,79 @@
-# Next frourio starter
+# Next frourio Starter
 
-フロントエンドは src ディレクトリの [Next.js](https://nextjs.org/) 、バックエンドは server ディレクトリの [frourio](https://frourio.com/) で構築された TypeScript で一気通貫開発が可能なモノレポサービス
+A monorepo service enabling full-stack development with TypeScript, constructed using [Next.js](https://nextjs.org/) in the `src` directory for the frontend and [frourio](https://frourio.com/) in the `server` directory for the backend.
 
-最新のコミットによるデモ - https://solufa.github.io/next-frourio-starter/
+Latest Commit Demo - <https://solufa.github.io/next-frourio-starter/>
 
-## 開発手順
+## Development Procedure
 
-### Node.js のインストール
+### Node.js Installation
 
-ローカルマシンに直接インストールする
+Install directly on your local machine.
 
-https://nodejs.org/ja/ の左ボタン、LTS をダウンロードしてインストール
+Download and install the LTS version from <https://nodejs.org/en/> (left button).
 
-### リポジトリのクローンと npm モジュールのインストール
+### Clone the Repository and Install npm Modules
 
-ルートとフロントとバックエンドそれぞれに package.json があるので 3 回インストールが必要
-
-```sh
-$ npm i
-$ npm i --prefix client
-$ npm i --prefix server
-```
-
-### 環境変数ファイルの作成
+There are `package.json` files in the root, front-end, and back-end, so you need to install three times.
 
 ```sh
-$ cp client/.env.example client/.env
-$ cp server/.env.example server/.env
-$ cp docker/dev/.env.example docker/dev/.env
-$ cp server/prisma/.env.example server/prisma/.env
+npm i
+npm i --prefix client
+npm i --prefix server
 ```
-
-### ミドルウェアのセットアップ
 
 ```sh
-$ docker compose up -d
+yarn
+yarn --cwd client
+yarn --cwd server
 ```
 
-### 開発サーバー起動
-
-次回以降は以下のコマンドだけで開発できる
+### Creating Environment Variable Files
 
 ```sh
-$ npm run notios
+cp client/.env.example client/.env
+cp server/.env.example server/.env
+cp docker/dev/.env.example docker/dev/.env
+cp server/prisma/.env.example server/prisma/.env
 ```
 
-Web ブラウザで http://localhost:3000 を開く
+### Middleware Setup
 
-開発時のターミナル表示は [notios](https://github.com/frouriojs/notios) で制御している
+```sh
+docker compose up -d
+```
 
-[Node.js モノレポ開発のターミナルログ混雑解消のための新作 CLI ツール notios](https://zenn.dev/luma/articles/nodejs-new-cli-tool-notios)
+### Starting the Development Server
 
-閉じるときは `Ctrl + C` を 2 回連続で入力
+For subsequent development sessions, the following command is sufficient:
+
+```sh
+npm run notios
+```
+
+```sh
+yarn notios
+```
+
+Open <http://localhost:3000> in a web browser.
+
+Terminal display during development is managed by [notios](https://github.com/frouriojs/notios).
+
+[New CLI Tool notios for Uncluttering Terminal Logs in Node.js Monorepo Development](https://zenn.dev/luma/articles/nodejs-new-cli-tool-notios)
+
+To close, press `Ctrl + C` twice in succession.
 
 #### Firebase Emulator
 
-http://localhost:4000/auth
+<http://localhost:4000/auth>
 
 #### MinIO Console
 
-http://localhost:9001/
+<http://localhost:9001/>
 
 #### PostgreSQL UI
 
-```sh
+\```sh
 $ cd server
 $ npx prisma studio
-```
+\```
