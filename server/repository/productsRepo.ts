@@ -8,6 +8,7 @@ import { prismaClient } from '../service/prismaClient';
 const toModel = (prismaProduct: Product): ProductModel => ({
   id: productIdParser.parse(prismaProduct.id),
   name: prismaProduct.name,
+  quantity: prismaProduct.quantity,
   price: prismaProduct.price,
   created: prismaProduct.createdAt.getTime(),
 });
@@ -37,12 +38,14 @@ export const getProducts = async (limit?: number): Promise<ProductModel[]> => {
 // The createProduct function is used to create a new product.
 export const createProduct = async (
   name: ProductModel['name'],
-  price: ProductModel['price']
+  price: ProductModel['price'],
+  quantity: ProductModel['quantity']
 ): Promise<ProductModel> => {
   const prismaProduct = await prismaClient.product.create({
     data: {
       id: randomUUID(),
       name,
+      quantity,
       price,
       createdAt: new Date(),
     },
@@ -86,12 +89,14 @@ export const seedProducts = async (): Promise<void> => {
       {
         id: randomUUID(),
         name: 'Product 1',
+        quantity: 1,
         price: 100,
         createdAt: new Date(),
       },
       {
         id: randomUUID(),
         name: 'Product 2',
+        quantity: 1,
         price: 200,
         createdAt: new Date(),
       },
@@ -99,6 +104,7 @@ export const seedProducts = async (): Promise<void> => {
         id: randomUUID(),
         name: 'Product 3',
         price: 300,
+        quantity: 1,
         createdAt: new Date(),
       },
     ],

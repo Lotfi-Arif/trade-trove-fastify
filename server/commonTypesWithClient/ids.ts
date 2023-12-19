@@ -9,3 +9,5 @@ export type UserId = Branded<'UserId'>;
 export type TaskId = Branded<'TaskId'>;
 
 export type ProductId = Branded<'ProductId'>;
+
+export type OrderId = Branded<'OrderId'>;
