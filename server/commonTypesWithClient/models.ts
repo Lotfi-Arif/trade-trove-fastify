@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { taskIdParser } from '../service/idParsers';
+import { productIdParser, taskIdParser } from '../service/idParsers';
 import type { UserId } from './ids';
 
 export type UserModel = {
@@ -16,4 +16,13 @@ export const taskParser = z.object({
   created: z.number(),
 });
 
+export const productParser = z.object({
+  id: productIdParser,
+  name: z.string(),
+  price: z.number(),
+  created: z.number(),
+});
+
 export type TaskModel = z.infer<typeof taskParser>;
+
+export type ProductModel = z.infer<typeof productParser>;
