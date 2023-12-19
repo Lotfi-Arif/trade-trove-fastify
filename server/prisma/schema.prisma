@@ -14,3 +14,25 @@ model Task {
   done      Boolean
   createdAt DateTime
 }
+
+model User {
+  id        String   @id
+  email     String   @unique
+  password  String
+  createdAt DateTime
+}
+
+model Product {
+  id        String   @id
+  name      String
+  price     Float
+  createdAt DateTime
+}
+
+model Order {
+  id        String   @id
+  userId    String
+  productId String
+  quantity  Int
+  createdAt DateTime
+}
