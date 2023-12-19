@@ -73,7 +73,7 @@ To close, press `Ctrl + C` twice in succession.
 
 #### PostgreSQL UI
 
-\```sh
+```sh
 $ cd server
 $ npx prisma studio
-\```
+```
