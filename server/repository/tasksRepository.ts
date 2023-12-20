@@ -1,7 +1,6 @@
 import type { Maybe, TaskId, UserId } from '$/commonTypesWithClient/ids';
 import type { Prisma, Task } from '@prisma/client';
 import type { TaskModel } from 'commonTypesWithClient/models';
-import { randomUUID } from 'crypto';
 import { depend } from 'velona';
 import { taskIdParser } from '../service/idParsers';
 import { prismaClient } from '../service/prismaClient';
@@ -26,7 +25,6 @@ export const getTasks = async (userId: UserId, limit?: number): Promise<TaskMode
 export const createTask = async (userId: UserId, label: TaskModel['label']): Promise<TaskModel> => {
   const prismaTask = await prismaClient.task.create({
     data: {
-      id: randomUUID(),
       userId,
       done: false,
       label,

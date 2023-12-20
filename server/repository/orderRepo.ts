@@ -31,7 +31,6 @@ export const createOrder = async (
 ): Promise<OrderModel> => {
   const prismaOrder = await prismaClient.order.create({
     data: {
-      id: randomUUID(),
       userId,
       productId,
       quantity,
@@ -87,21 +86,18 @@ export const seedOrders = async (): Promise<void> => {
   await prismaClient.order.createMany({
     data: [
       {
-        id: randomUUID(),
         userId: randomUUID(),
         productId: randomUUID(),
         quantity: 1,
         createdAt: new Date(),
       },
       {
-        id: randomUUID(),
         userId: randomUUID(),
         productId: randomUUID(),
         quantity: 2,
         createdAt: new Date(),
       },
       {
-        id: randomUUID(),
         userId: randomUUID(),
         productId: randomUUID(),
         quantity: 3,

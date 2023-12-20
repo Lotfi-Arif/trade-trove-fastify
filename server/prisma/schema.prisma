@@ -8,7 +8,7 @@ generator client {
 }
 
 model Task {
-  id        String   @id
+  id        String   @id @default(uuid())
   userId    String
   label     String
   done      Boolean
@@ -16,7 +16,7 @@ model Task {
 }
 
 model User {
-  id        String   @id
+  id        String   @id @default(uuid())
   email     String   @unique
   password  String
   order     Order[]
@@ -24,7 +24,7 @@ model User {
 }
 
 model Product {
-  id        String   @id
+  id        String   @id @default(uuid())
   name      String
   price     Float
   quantity  Int
@@ -33,7 +33,7 @@ model Product {
 }
 
 model Order {
-  id        String   @id
+  id        String   @id @default(uuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   productId String

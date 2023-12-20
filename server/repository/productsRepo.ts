@@ -43,7 +43,6 @@ export const createProduct = async (
 ): Promise<ProductModel> => {
   const prismaProduct = await prismaClient.product.create({
     data: {
-      id: randomUUID(),
       name,
       quantity,
       price,
