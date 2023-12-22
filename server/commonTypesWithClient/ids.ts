@@ -11,3 +11,5 @@ export type TaskId = Branded<'TaskId'>;
 export type ProductId = Branded<'ProductId'>;
 
 export type OrderId = Branded<'OrderId'>;
+
+export type CartId = Branded<'CartId'>;

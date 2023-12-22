@@ -1,4 +1,10 @@
-import { orderIdParser, productIdParser, taskIdParser, userIdParser } from 'service/idParsers';
+import {
+  cartIdParser,
+  orderIdParser,
+  productIdParser,
+  taskIdParser,
+  userIdParser,
+} from 'service/idParsers';
 import { z } from 'zod';
 import type { UserId } from './ids';
 
@@ -9,21 +15,17 @@ export type UserModel = {
   photoURL: string | undefined;
 };
 
+// Task model and parser
 export const taskParser = z.object({
   id: taskIdParser,
+  userId: userIdParser,
   label: z.string(),
   done: z.boolean(),
   created: z.number(),
 });
+export type TaskModel = z.infer<typeof taskParser>;
 
-export const productParser = z.object({
-  id: productIdParser,
-  name: z.string(),
-  quantity: z.number(),
-  price: z.number(),
-  created: z.number(),
-});
-
+// Order model and parser
 export const orderParser = z.object({
   id: orderIdParser,
   userId: userIdParser,
@@ -31,9 +33,23 @@ export const orderParser = z.object({
   quantity: z.number(),
   created: z.number(),
 });
+export type OrderModel = z.infer<typeof orderParser>;
 
-export type TaskModel = z.infer<typeof taskParser>;
-
+// Product model and parser
+export const productParser = z.object({
+  id: productIdParser,
+  name: z.string(),
+  quantity: z.number(),
+  price: z.number(),
+  orders: z.array(orderParser), // Product to orders relationship
+  created: z.number(),
+});
 export type ProductModel = z.infer<typeof productParser>;
 
-export type OrderModel = z.infer<typeof orderParser>;
+// Cart model and parser (if applicable)
+export const cartParser = z.object({
+  id: cartIdParser,
+  userId: userIdParser,
+  products: z.array(productIdParser), // Cart to products relationship
+});
+export type CartModel = z.infer<typeof cartParser>;
