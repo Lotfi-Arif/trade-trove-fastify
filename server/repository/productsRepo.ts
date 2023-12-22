@@ -67,11 +67,27 @@ export const createProduct = async (
 export const updateProduct = async (
   id: string,
   name: string,
-  price: number
+  price: number,
+  quantity: number
 ): Promise<ProductModel> => {
   const prismaProduct = await prismaClient.product.update({
     where: { id },
-    data: { name, price },
+    data: { name, price, quantity },
+  });
+
+  return toModel(prismaProduct);
+};
+
+// the patchProduct function is used to patch a product.
+export const patchProduct = async (
+  id: string,
+  name?: string,
+  price?: number,
+  quantity?: number
+): Promise<ProductModel> => {
+  const prismaProduct = await prismaClient.product.update({
+    where: { id },
+    data: { name, price, quantity },
   });
 
   return toModel(prismaProduct);
