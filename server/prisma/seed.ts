@@ -1,29 +1,57 @@
-import { prismaClient } from '$/service/prismaClient';
-import { randomUUID } from 'crypto';
+import { OrderStatus, PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 async function main() {
-  const count = await prismaClient.task.count();
+  // Create sample users
+  const user1 = await prisma.user.create({
+    data: {
+      email: 'user1@example.com',
+      password: 'password1', // Remember to hash in production!
+    },
+  });
 
-  if (count > 0) return;
+  const user2 = await prisma.user.create({
+    data: {
+      email: 'user2@example.com',
+      password: 'password2', // Remember to hash in production!
+    },
+  });
 
-  await Promise.all(
-    [
-      {
-        id: randomUUID(),
-        userId: 'dummy-userId',
-        label: 'task1',
-        done: true,
-        createdAt: new Date(),
-      },
-      {
-        id: randomUUID(),
-        userId: 'dummy-userId',
-        label: 'task2',
-        done: false,
-        createdAt: new Date(Date.now() + 100),
-      },
-    ].map((data) => prismaClient.task.create({ data }))
-  );
+  // Create sample products
+  const product1 = await prisma.product.create({
+    data: {
+      name: 'Product 1',
+      price: 100.0,
+      quantity: 10,
+    },
+  });
+
+  const product2 = await prisma.product.create({
+    data: {
+      name: 'Product 2',
+      price: 200.0,
+      quantity: 20,
+    },
+  });
+
+  // Create sample orders
+  await prisma.order.create({
+    data: {
+      user: { connect: { id: user1.id } },
+      product: { connect: { id: product1.id } },
+      quantity: 1,
+      status: OrderStatus.PENDING,
+    },
+  });
+
+  // Create sample carts
+  await prisma.cart.create({
+    data: {
+      user: { connect: { id: user2.id } },
+      products: { connect: [{ id: product1.id }, { id: product2.id }] },
+    },
+  });
 }
 
 main()
@@ -32,5 +60,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prismaClient.$disconnect();
+    await prisma.$disconnect();
   });
