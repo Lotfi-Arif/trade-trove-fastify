@@ -15,6 +15,16 @@ const toModel = (prismaProduct: Product): ProductModel => ({
 
 // The getProduct function is used to get a single product by its ID.
 export const getProduct = async (id: string): Promise<ProductModel> => {
+  // Check if the ID is an empty string
+  if (!id.trim()) {
+    throw new Error('Product ID must not be empty');
+  }
+
+  // Continue with existing checks for ID validity
+  if (!productIdParser.safeParse(id).success) {
+    throw new Error(`Invalid product ID: ${id}`);
+  }
+
   const prismaProduct = await prismaClient.product.findUnique({
     where: { id },
   });

@@ -4,9 +4,9 @@ import type { ProductModel } from 'commonTypesWithClient/models';
 export type Methods = DefineMethods<{
   get: {
     query?: {
-      limit?: number;
+      productId: string;
+      limit: number;
     };
-
     resBody: ProductModel[];
   };
 
