@@ -7,37 +7,60 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Task {
-  id        String   @id @default(uuid())
-  userId    String
-  label     String
-  done      Boolean
-  createdAt DateTime
+// Enum for Order Status
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
 }
 
+// User model representing each user of the platform.
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
   password  String
-  order     Order[]
-  createdAt DateTime
+  // One User can have multiple Orders.
+  orders    Order[]
+  // One User can have one Cart.
+  cart      Cart?
+  createdAt DateTime @default(now())
 }
 
+// Product model representing each item that can be purchased.
 model Product {
   id        String   @id @default(uuid())
   name      String
   price     Float
   quantity  Int
-  order     Order[]
-  createdAt DateTime
+  // One Product can be part of multiple Orders.
+  orders    Order[]
+  createdAt DateTime @default(now())
+  Cart      Cart?    @relation(fields: [cartId], references: [id])
+  cartId    String?
 }
 
+// Order model representing the purchase of products by a user.
 model Order {
-  id        String   @id @default(uuid())
+  id        String      @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  // Link to the User who made the Order.
+  user      User        @relation(fields: [userId], references: [id])
   productId String
-  product   Product  @relation(fields: [productId], references: [id])
+  // Link to the Product being ordered.
+  product   Product     @relation(fields: [productId], references: [id])
   quantity  Int
-  createdAt DateTime
+  // Status of the Order.
+  status    OrderStatus
+  createdAt DateTime    @default(now())
+}
+
+// Cart model representing a user's shopping cart.
+model Cart {
+  id        String    @id @default(uuid())
+  userId    String    @unique
+  // Link to the User who owns the Cart.
+  user      User      @relation(fields: [userId], references: [id])
+  // One Cart can have multiple Products.
+  products  Product[]
+  createdAt DateTime  @default(now())
 }
