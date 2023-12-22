@@ -13,10 +13,42 @@ const toModel = (prismaOrder: Order): OrderModel => ({
   created: prismaOrder.createdAt.getTime(),
 });
 
+// The getOrder function is used to get a single order by its ID.
+export const getOrder = async (id: string): Promise<OrderModel> => {
+  // Check if the ID is an empty string
+  if (!id.trim()) {
+    throw new Error('Order ID must not be empty');
+  }
+
+  // Continue with existing checks for ID validity
+  if (!orderIdParser.safeParse(id).success) {
+    throw new Error(`Invalid order ID: ${id}`);
+  }
+
+  const prismaOrder = await prismaClient.order.findUnique({
+    where: { id },
+  });
+
+  if (!prismaOrder) {
+    throw new Error(`Order not found: ${id}`);
+  }
+  return toModel(prismaOrder);
+};
+
 // The getOrders function is used to get all orders.
 export const getOrders = async (limit?: number): Promise<OrderModel[]> => {
   const prismaOrders = await prismaClient.order.findMany({
     take: limit,
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return prismaOrders.map(toModel);
+};
+
+// The getOrdersByUserId function is used to get all orders by a user.
+export const getOrdersByUserId = async (userId: string): Promise<OrderModel[]> => {
+  const prismaOrders = await prismaClient.order.findMany({
+    where: { userId },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -55,6 +87,16 @@ export const updateOrder = async (
       productId,
       quantity,
     },
+  });
+
+  return toModel(prismaOrder);
+};
+
+// The patchOrder function is used to patch an order.
+export const patchOrder = async (id: string, quantity?: number): Promise<OrderModel> => {
+  const prismaOrder = await prismaClient.order.update({
+    where: { id },
+    data: { quantity },
   });
 
   return toModel(prismaOrder);
