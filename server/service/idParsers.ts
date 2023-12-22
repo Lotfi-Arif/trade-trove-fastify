@@ -1,5 +1,5 @@
+import type { OrderId, ProductId, TaskId, UserId } from 'commonTypesWithClient/ids';
 import { z } from 'zod';
-import type { OrderId, ProductId, TaskId, UserId } from '../commonTypesWithClient/ids';
 
 const createIdParser = <T extends string>() => z.string() as unknown as z.ZodType<T>;
 

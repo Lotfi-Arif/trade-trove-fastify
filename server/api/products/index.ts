@@ -1,5 +1,5 @@
-import type { ProductModel } from '$/commonTypesWithClient/models';
 import type { DefineMethods } from 'aspida';
+import type { ProductModel } from 'commonTypesWithClient/models';
 
 export type Methods = DefineMethods<{
   get: {

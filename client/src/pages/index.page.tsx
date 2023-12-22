@@ -32,7 +32,7 @@ const Home = () => {
   const toggleDone = async (task: TaskModel) => {
     await apiClient.tasks
       ._taskId(task.id)
-      .patch({ body: { done: !task.done } })
+      .patch({ body: { done: task.done === false } })
       .catch(returnNull);
     await fetchTasks();
   };

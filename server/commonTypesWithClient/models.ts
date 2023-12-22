@@ -1,5 +1,5 @@
+import { orderIdParser, productIdParser, taskIdParser, userIdParser } from 'service/idParsers';
 import { z } from 'zod';
-import { orderIdParser, productIdParser, taskIdParser, userIdParser } from '../service/idParsers';
 import type { UserId } from './ids';
 
 export type UserModel = {
