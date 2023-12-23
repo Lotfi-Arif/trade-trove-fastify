@@ -1,16 +1,18 @@
 import { prismaClient } from '$/service/prismaClient';
-import type { Order } from '@prisma/client';
-import type { OrderModel } from 'commonTypesWithClient/models';
-import { randomUUID } from 'crypto';
+import type { Order, OrderStatus } from '@prisma/client';
+import { orderParser, type OrderModel } from 'commonTypesWithClient/models';
 import { orderIdParser, productIdParser, userIdParser } from '../service/idParsers';
 
 // The toModel function is used to convert the Prisma Order type to the OrderModel type.
 const toModel = (prismaOrder: Order): OrderModel => ({
+  // Assume the ID from the database is correct and coerce the type.
   id: orderIdParser.parse(prismaOrder.id),
   userId: userIdParser.parse(prismaOrder.userId),
   productId: productIdParser.parse(prismaOrder.productId),
   quantity: prismaOrder.quantity,
-  created: prismaOrder.createdAt.getTime(),
+  status: prismaOrder.status,
+  createdAt: prismaOrder.createdAt,
+  updatedAt: prismaOrder.updatedAt,
 });
 
 // The getOrder function is used to get a single order by its ID.
@@ -57,16 +59,13 @@ export const getOrdersByUserId = async (userId: string): Promise<OrderModel[]> =
 
 // The createOrder function is used to create a new order.
 export const createOrder = async (
-  userId: OrderModel['userId'],
-  productId: OrderModel['productId'],
-  quantity: OrderModel['quantity']
+  orderData: Omit<OrderModel, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<OrderModel> => {
+  const validatedData = orderParser.parse(orderData);
+
   const prismaOrder = await prismaClient.order.create({
     data: {
-      userId,
-      productId,
-      quantity,
-      createdAt: new Date(),
+      ...validatedData, // Spread the validated data, including the status
     },
   });
 
@@ -92,11 +91,31 @@ export const updateOrder = async (
   return toModel(prismaOrder);
 };
 
+// Update status of an order - new functionality
+export const updateOrderStatus = async (id: string, status: OrderStatus): Promise<OrderModel> => {
+  const prismaOrder = await prismaClient.order.update({
+    where: { id },
+    data: { status },
+  });
+
+  return toModel(prismaOrder);
+};
+
 // The patchOrder function is used to patch an order.
 export const patchOrder = async (id: string, quantity?: number): Promise<OrderModel> => {
   const prismaOrder = await prismaClient.order.update({
     where: { id },
     data: { quantity },
+  });
+
+  return toModel(prismaOrder);
+};
+
+// Handle payment of an order
+export const payOrder = async (id: string): Promise<OrderModel> => {
+  const prismaOrder = await prismaClient.order.update({
+    where: { id },
+    data: { status: 'COMPLETED' },
   });
 
   return toModel(prismaOrder);
@@ -120,32 +139,6 @@ export const deleteAllOrders = async (): Promise<void> => {
 export const deleteOrdersByUserId = async (userId: string): Promise<void> => {
   await prismaClient.order.deleteMany({
     where: { userId },
-  });
-};
-
-// The seedOrders function is used to seed the database with some orders.
-export const seedOrders = async (): Promise<void> => {
-  await prismaClient.order.createMany({
-    data: [
-      {
-        userId: randomUUID(),
-        productId: randomUUID(),
-        quantity: 1,
-        createdAt: new Date(),
-      },
-      {
-        userId: randomUUID(),
-        productId: randomUUID(),
-        quantity: 2,
-        createdAt: new Date(),
-      },
-      {
-        userId: randomUUID(),
-        productId: randomUUID(),
-        quantity: 3,
-        createdAt: new Date(),
-      },
-    ],
   });
 };
 
