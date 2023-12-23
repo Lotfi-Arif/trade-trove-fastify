@@ -16,14 +16,17 @@ enum OrderStatus {
 
 // User model representing each user of the platform.
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
+  id          String   @id @default(uuid()) // Internal UUID for your application
+  firebaseUid String   @unique // Firebase UID, ensure it's unique
+  email       String?  @unique // User's email, optional based on your auth method
+  displayName String? // User's display name, optional
+  photoURL    String? // User's photo URL, optional
+  createdAt   DateTime @default(now()) // Timestamp of when the user was created
+  updatedAt   DateTime @updatedAt // Timestamp of when the user was last updated
   // One User can have multiple Orders.
-  orders    Order[]
+  orders      Order[]
   // One User can have one Cart.
-  cart      Cart?
-  createdAt DateTime @default(now())
+  cart        Cart?
 }
 
 // Product model representing each item that can be purchased.

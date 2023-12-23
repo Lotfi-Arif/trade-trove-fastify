@@ -3,21 +3,26 @@ import { OrderStatus, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Define a type for the custom error to handle Prisma errors.
 type PrismaError = Error & { code?: string };
 
-// Error handling function to check for unique constraint violations.
 function handleError(error: PrismaError, errorCode: string): void {
   if (error.code === errorCode) {
     console.log(`Duplicate entry encountered: ${error.message}`);
   } else {
-    throw error; // Re-throw unexpected errors for further investigation.
+    throw error;
   }
 }
 
-async function createUser(email: string, password: string): Promise<User | null> {
+async function createUser(email: string, firebaseUid: string): Promise<User | null> {
   try {
-    return await prisma.user.create({ data: { email, password } });
+    return await prisma.user.create({
+      data: {
+        email,
+        firebaseUid, // Use the Firebase UID here
+        displayName: 'Sample User', // Optional, add a display name
+        photoURL: 'https://example.com/photo.jpg', // Optional, add a photo URL
+      },
+    });
   } catch (error: unknown) {
     handleError(error as PrismaError, 'P2002');
     return null;
@@ -44,7 +49,8 @@ async function main(): Promise<void> {
   await prisma.product.deleteMany({});
   await prisma.user.deleteMany({});
 
-  const user1 = await createUser('user1@example.com', 'password1');
+  // Creating a user with a dummy Firebase UID for seeding purposes
+  const user1 = await createUser('user1@example.com', 'firebaseUid1');
 
   const product1 = await createProduct('Product 1', 100.0, 10);
   const product2 = await createProduct('Product 2', 200.0, 20);
