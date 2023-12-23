@@ -1,55 +1,67 @@
-import {
-  cartIdParser,
-  orderIdParser,
-  productIdParser,
-  taskIdParser,
-  userIdParser,
-} from 'service/idParsers';
+import { OrderStatus } from '@prisma/client'; // Import enums directly from Prisma
 import { z } from 'zod';
-import type { UserId } from './ids';
 
-export type UserModel = {
-  id: UserId;
-  email: string;
-  displayName: string | undefined;
-  photoURL: string | undefined;
-};
+// Assuming you have id parsers for each type
+import { cartIdParser, orderIdParser, productIdParser, userIdParser } from 'service/idParsers';
 
-// Task model and parser
-export const taskParser = z.object({
-  id: taskIdParser,
-  userId: userIdParser,
-  label: z.string(),
-  done: z.boolean(),
-  created: z.number(),
+// User validation schema
+export const userParser = z.object({
+  id: userIdParser,
+  firebaseUid: z.string(),
+  email: z.string().optional(),
+  displayName: z.string().optional(),
+  photoURL: z.string().optional(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  // Relationships will be added later as lazy to avoid circular dependency issues
 });
-export type TaskModel = z.infer<typeof taskParser>;
 
-// Order model and parser
-export const orderParser = z.object({
-  id: orderIdParser,
-  userId: userIdParser,
-  productId: productIdParser,
-  quantity: z.number(),
-  created: z.number(),
-});
-export type OrderModel = z.infer<typeof orderParser>;
-
-// Product model and parser
+// Product validation schema
 export const productParser = z.object({
   id: productIdParser,
   name: z.string(),
-  quantity: z.number(),
   price: z.number(),
-  orders: z.array(orderParser), // Product to orders relationship
-  created: z.number(),
+  quantity: z.number(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  // Assuming a relation to Cart is optional and orders is a list of orderIdParser
+  cartId: cartIdParser.optional(),
+  orders: z.array(orderIdParser).optional(),
 });
-export type ProductModel = z.infer<typeof productParser>;
 
-// Cart model and parser (if applicable)
+// Order validation schema
+export const orderParser = z.object({
+  id: orderIdParser,
+  userId: userIdParser, // Ensure user exists for an order
+  productId: productIdParser,
+  quantity: z.number(),
+  status: z.nativeEnum(OrderStatus), // Use the nativeEnum method for Prisma enums
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+// Cart validation schema
 export const cartParser = z.object({
   id: cartIdParser,
-  userId: userIdParser,
-  products: z.array(productIdParser), // Cart to products relationship
+  userId: userIdParser, // Ensure a cart is associated with a user
+  products: z.array(productIdParser), // Array of product IDs
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
+
+// Add relationships using z.lazy to avoid issues with circular references
+userParser.extend({
+  orders: z.lazy(() => z.array(orderParser)), // User to Orders relationship
+  cart: z.lazy(() => cartParser).optional(), // User to Cart relationship
+});
+
+productParser.extend({
+  // Product to Orders relationship, assuming a product can be part of multiple orders
+  orders: z.lazy(() => z.array(orderParser)).optional(),
+});
+
+// Infer TypeScript types from the Zod schemas
+export type UserModel = z.infer<typeof userParser>;
+export type ProductModel = z.infer<typeof productParser>;
+export type OrderModel = z.infer<typeof orderParser>;
 export type CartModel = z.infer<typeof cartParser>;

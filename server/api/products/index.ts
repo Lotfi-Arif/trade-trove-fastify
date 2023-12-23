@@ -10,7 +10,7 @@ export type Methods = DefineMethods<{
   };
 
   post: {
-    reqBody: Omit<ProductModel, 'id' | 'created'>;
+    reqBody: Omit<ProductModel, 'id' | 'createdAt' | 'updatedAt'>;
     resBody: ProductModel;
   };
 }>;

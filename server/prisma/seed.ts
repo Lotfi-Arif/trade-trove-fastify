@@ -17,6 +17,7 @@ async function createUser(email: string, firebaseUid: string): Promise<User | nu
   try {
     return await prisma.user.create({
       data: {
+        id: firebaseUid,
         email,
         firebaseUid, // Use the Firebase UID here
         displayName: 'Sample User', // Optional, add a display name

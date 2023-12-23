@@ -10,7 +10,8 @@ const toModel = (prismaProduct: Product): ProductModel => ({
   name: prismaProduct.name,
   quantity: prismaProduct.quantity,
   price: prismaProduct.price,
-  created: prismaProduct.createdAt.getTime(),
+  createdAt: prismaProduct.createdAt,
+  updatedAt: prismaProduct.updatedAt,
 });
 
 // The getProduct function is used to get a single product by its ID.
