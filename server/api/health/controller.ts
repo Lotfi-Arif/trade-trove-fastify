@@ -6,6 +6,14 @@ export default defineController(() => ({
     status: 200,
     body: {
       server: 'ok',
+      db: await prismaClient
+        .$connect()
+        .then(() => 'ok' as const)
+        .catch(() => 'ng' as const),
+      cart: await prismaClient.cart
+        .count()
+        .then(() => 'ok' as const)
+        .catch(() => 'ng' as const),
       order: await prismaClient.order
         .count()
         .then(() => 'ok' as const)
