@@ -1,8 +1,9 @@
-import { OrderStatus } from '@prisma/client'; // Import enums directly from Prisma
+import { OrderStatus } from '@prisma/client';
+import { cartIdParser, orderIdParser, productIdParser, userIdParser } from 'service/idParsers';
 import { z } from 'zod';
 
-// Assuming you have id parsers for each type
-import { cartIdParser, orderIdParser, productIdParser, userIdParser } from 'service/idParsers';
+// Enum for OrderStatus using z.nativeEnum
+const orderStatusParser = z.nativeEnum(OrderStatus);
 
 // User validation schema
 export const userParser = z.object({
@@ -13,7 +14,20 @@ export const userParser = z.object({
   photoURL: z.string().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
-  // Relationships will be added later as lazy to avoid circular dependency issues
+  deletedAt: z.date().nullable(),
+  profile: z
+    .lazy(() => userProfileParser)
+    .optional()
+    .nullable(), // Include profile here directly
+  // Relationships added later to avoid circular dependency issues
+});
+
+// UserProfile validation schema
+export const userProfileParser = z.object({
+  id: userIdParser,
+  userId: userIdParser,
+  address: z.string().optional(),
+  phone: z.string().optional(),
 });
 
 // Product validation schema
@@ -24,44 +38,65 @@ export const productParser = z.object({
   quantity: z.number(),
   createdAt: z.date(),
   updatedAt: z.date(),
-  // Assuming a relation to Cart is optional and orders is a list of orderIdParser
-  cartId: cartIdParser.optional(),
-  orders: z.array(orderIdParser).optional(),
+  // Relationship added later to avoid circular dependency issues
 });
 
-// Order validation schema
-export const orderParser = z.object({
-  id: orderIdParser,
-  userId: userIdParser, // Ensure user exists for an order
+// CartItem validation schema
+export const cartItemParser = z.object({
+  cartId: cartIdParser,
   productId: productIdParser,
   quantity: z.number(),
-  status: z.nativeEnum(OrderStatus), // Use the nativeEnum method for Prisma enums
-  createdAt: z.date(),
-  updatedAt: z.date(),
 });
 
 // Cart validation schema
 export const cartParser = z.object({
   id: cartIdParser,
-  userId: userIdParser, // Ensure a cart is associated with a user
-  products: z.array(productIdParser), // Array of product IDs
+  userId: userIdParser,
   createdAt: z.date(),
   updatedAt: z.date(),
+  items: z.array(cartItemParser), // Directly include CartItem relationships
 });
 
-// Add relationships using z.lazy to avoid issues with circular references
+// OrderDetails validation schema
+export const orderDetailsParser = z.object({
+  id: orderIdParser,
+  orderId: orderIdParser,
+  // Add additional fields as needed, e.g., shipping address, payment method, etc.
+});
+
+// Order validation schema
+export const orderParser = z.object({
+  id: orderIdParser,
+  userId: userIdParser,
+  productId: productIdParser,
+  quantity: z.number(),
+  status: orderStatusParser,
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  deletedAt: z.date().nullable(),
+  // Relationship added later to avoid circular dependency issues
+});
+
+// Extend parsers to include relationships
 userParser.extend({
-  orders: z.lazy(() => z.array(orderParser)), // User to Orders relationship
-  cart: z.lazy(() => cartParser).optional(), // User to Cart relationship
+  orders: z.lazy(() => z.array(orderParser)),
+  cart: z.lazy(() => cartParser).nullable(),
 });
 
 productParser.extend({
-  // Product to Orders relationship, assuming a product can be part of multiple orders
-  orders: z.lazy(() => z.array(orderParser)).optional(),
+  cartItems: z.lazy(() => z.array(cartItemParser)),
+  orders: z.lazy(() => z.array(orderParser)),
+});
+
+orderParser.extend({
+  details: z.lazy(() => orderDetailsParser).nullable(),
 });
 
 // Infer TypeScript types from the Zod schemas
 export type UserModel = z.infer<typeof userParser>;
+export type UserProfileModel = z.infer<typeof userProfileParser>;
 export type ProductModel = z.infer<typeof productParser>;
-export type OrderModel = z.infer<typeof orderParser>;
+export type CartItemModel = z.infer<typeof cartItemParser>;
 export type CartModel = z.infer<typeof cartParser>;
+export type OrderDetailsModel = z.infer<typeof orderDetailsParser>;
+export type OrderModel = z.infer<typeof orderParser>;

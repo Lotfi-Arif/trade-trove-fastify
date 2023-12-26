@@ -43,6 +43,20 @@ async function createProduct(
   }
 }
 
+async function addProductToCart(cartId: string, productId: string, quantity: number) {
+  try {
+    await prisma.cartItem.create({
+      data: {
+        cartId,
+        productId,
+        quantity,
+      },
+    });
+  } catch (error: unknown) {
+    handleError(error as PrismaError, 'P2002');
+  }
+}
+
 async function main(): Promise<void> {
   // Delete existing data first to ensure a clean start
   await prisma.order.deleteMany({});
@@ -50,27 +64,31 @@ async function main(): Promise<void> {
   await prisma.product.deleteMany({});
   await prisma.user.deleteMany({});
 
-  // Creating a user with a dummy Firebase UID for seeding purposes
+  // Create sample data
   const user1 = await createUser('user1@example.com', 'firebaseUid1');
-
   const product1 = await createProduct('Product 1', 100.0, 10);
   const product2 = await createProduct('Product 2', 200.0, 20);
 
-  if (user1 && product1) {
-    await prisma.order.create({
+  if (user1) {
+    // Create a new cart for the user
+    const cart = await prisma.cart.create({
       data: {
-        user: { connect: { id: user1.id } },
-        product: { connect: { id: product1.id } },
-        quantity: 1,
-        status: OrderStatus.PENDING,
+        userId: user1.id,
       },
     });
 
-    if (product2) {
-      await prisma.cart.create({
+    // Add products to the cart
+    if (product1) await addProductToCart(cart.id, product1.id, 1);
+    if (product2) await addProductToCart(cart.id, product2.id, 1);
+
+    // Create an order for the user
+    if (product1) {
+      await prisma.order.create({
         data: {
-          user: { connect: { id: user1.id } },
-          products: { connect: [{ id: product1.id }, { id: product2.id }] },
+          userId: user1.id,
+          productId: product1.id,
+          quantity: 1,
+          status: OrderStatus.PENDING,
         },
       });
     }

@@ -27,6 +27,8 @@ export default defineController(() => ({
         productId: productIdParser,
         quantity: z.number().int().positive(),
         status: z.nativeEnum(OrderStatus),
+        // Specify that deletedAt can be a Date or null, but not undefined
+        deletedAt: z.date().nullable(),
       }),
     },
     handler: async ({ body }) => ({

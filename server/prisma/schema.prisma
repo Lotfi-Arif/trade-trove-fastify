@@ -14,58 +14,76 @@ enum OrderStatus {
   CANCELLED
 }
 
-// User model representing each user of the platform.
 model User {
-  id          String   @id
-  firebaseUid String   @unique // Firebase UID, ensure it's unique
-  email       String?  @unique // User's email, optional based on your auth method
+  id          String       @id @default(uuid())
+  firebaseUid String       @unique // Firebase UID, ensure it's unique
+  email       String?      @unique // User's email, optional based on your auth method
   displayName String? // User's display name, optional
   photoURL    String? // User's photo URL, optional
-  createdAt   DateTime @default(now()) // Timestamp of when the user was created
-  updatedAt   DateTime @updatedAt // Timestamp of when the user was last updated
-  // One User can have multiple Orders.
-  orders      Order[]
-  // One User can have one Cart.
-  cart        Cart?
+  createdAt   DateTime     @default(now()) // Timestamp of when the user was created
+  updatedAt   DateTime     @updatedAt // Timestamp of when the user was last updated
+  deletedAt   DateTime? // Soft delete (null means not deleted)
+  orders      Order[] // One User can have multiple Orders.
+  cart        Cart? // One User can have one Cart.
+  profile     UserProfile? // Link to the user's profile for additional information
 }
 
-// Product model representing each item that can be purchased.
+model UserProfile {
+  id      String  @id @default(uuid())
+  userId  String  @unique
+  user    User    @relation(fields: [userId], references: [id])
+  // Additional fields like address, phone number, etc.
+  address String?
+  phone   String?
+}
+
 model Product {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   name      String
   price     Float
   quantity  Int
-  // One Product can be part of multiple Orders.
-  orders    Order[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Cart      Cart?    @relation(fields: [cartId], references: [id])
-  cartId    String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  cartItems CartItem[]
+  orders    Order[]    @relation("ProductOrders")
 }
 
-// Order model representing the purchase of products by a user.
 model Order {
-  id        String      @id @default(uuid())
+  id        String        @id @default(uuid())
   userId    String
-  // Link to the User who made the Order.
-  user      User        @relation(fields: [userId], references: [id])
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  details   OrderDetails?
   productId String
-  // Link to the Product being ordered.
-  product   Product     @relation(fields: [productId], references: [id])
+  product   Product       @relation(fields: [productId], references: [id], name: "ProductOrders")
   quantity  Int
-  // Status of the Order.
   status    OrderStatus
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  deletedAt DateTime? // Soft delete (null means not deleted)
 }
 
-// Cart model representing a user's shopping cart.
+model OrderDetails {
+  id      String @id @default(uuid())
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+  // Additional fields like shipping address, payment method, etc.
+}
+
 model Cart {
-  id        String    @id @default(uuid())
-  userId    String    @unique
-  // Link to the User who owns the Cart.
-  user      User      @relation(fields: [userId], references: [id])
-  // One Cart can have multiple Products.
-  products  Product[]
-  createdAt DateTime  @default(now())
+  id        String     @id @default(uuid())
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  cartId    String // FK to Cart
+  product   Product @relation(fields: [productId], references: [id])
+  productId String // FK to Product
+  quantity  Int // Quantity of the product in the cart
+
+  @@id([cartId, productId]) // Composite primary key
 }

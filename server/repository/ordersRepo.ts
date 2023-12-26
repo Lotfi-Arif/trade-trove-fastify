@@ -4,16 +4,21 @@ import { orderParser, type OrderModel } from 'commonTypesWithClient/models';
 import { orderIdParser, productIdParser, userIdParser } from '../service/idParsers';
 
 // The toModel function is used to convert the Prisma Order type to the OrderModel type.
-const toModel = (prismaOrder: Order): OrderModel => ({
-  // Assume the ID from the database is correct and coerce the type.
-  id: orderIdParser.parse(prismaOrder.id),
-  userId: userIdParser.parse(prismaOrder.userId),
-  productId: productIdParser.parse(prismaOrder.productId),
-  quantity: prismaOrder.quantity,
-  status: prismaOrder.status,
-  createdAt: prismaOrder.createdAt,
-  updatedAt: prismaOrder.updatedAt,
-});
+const toModel = (prismaOrder: Order): OrderModel => {
+  // Validate and parse the data using the Zod schema to ensure it conforms to the OrderModel structure
+  const orderModel = orderParser.parse({
+    id: orderIdParser.parse(prismaOrder.id),
+    userId: userIdParser.parse(prismaOrder.userId),
+    productId: productIdParser.parse(prismaOrder.productId),
+    quantity: prismaOrder.quantity,
+    status: prismaOrder.status, // Make sure this aligns with the enum in your Zod schema
+    createdAt: prismaOrder.createdAt,
+    updatedAt: prismaOrder.updatedAt,
+    deletedAt: prismaOrder.deletedAt,
+  });
+
+  return orderModel;
+};
 
 // The getOrder function is used to get a single order by its ID.
 export const getOrder = async (id: string): Promise<OrderModel> => {
