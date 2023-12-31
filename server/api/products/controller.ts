@@ -28,7 +28,7 @@ export default defineController(() => ({
     },
     handler: async ({ body }) => ({
       status: 201,
-      body: await createProduct(body.name, body.price, body.quantity),
+      body: await createProduct({ name: body.name, price: body.price, quantity: body.quantity }),
     }),
   },
 }));

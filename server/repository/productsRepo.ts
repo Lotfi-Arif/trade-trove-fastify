@@ -56,7 +56,7 @@ export const createProduct = async (data: Prisma.ProductCreateInput): Promise<Pr
 // The updateProduct function is used to update a product.
 export const updateProduct = async (
   id: string,
-  { name, price, quantity }: Product
+  { name, price, quantity }: Product,
 ): Promise<ProductModel> => {
   // use prisma transaction for updating prouct
   const prismaProduct = await prismaClient.product.update({
@@ -70,7 +70,7 @@ export const updateProduct = async (
 // the patchProduct function is used to patch a product.
 export const patchProduct = async (
   id: string,
-  { name, price, quantity }: Product
+  { name, price, quantity }: Product,
 ): Promise<ProductModel> => {
   const prismaProduct = await prismaClient.product.update({
     where: { id },

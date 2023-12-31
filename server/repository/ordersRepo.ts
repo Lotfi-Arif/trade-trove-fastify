@@ -1,5 +1,5 @@
 import { prismaClient } from '$/service/prismaClient';
-import type { Order, OrderStatus } from '@prisma/client';
+import type { Order, OrderStatus, Prisma } from '@prisma/client';
 import { orderParser, type OrderModel } from 'commonTypesWithClient/models';
 import { orderIdParser, productIdParser, userIdParser } from '../service/idParsers';
 
@@ -63,9 +63,7 @@ export const getOrdersByUserId = async (userId: string): Promise<OrderModel[]> =
 };
 
 // The createOrder function is used to create a new order.
-export const createOrder = async (
-  orderData: Omit<OrderModel, 'id' | 'createdAt' | 'updatedAt'>
-): Promise<OrderModel> => {
+export const createOrder = async (orderData: Prisma.OrderCreateInput): Promise<OrderModel> => {
   const validatedData = orderParser.parse(orderData);
 
   const prismaOrder = await prismaClient.order.create({
@@ -80,9 +78,7 @@ export const createOrder = async (
 // The updateOrder function is used to update an order.
 export const updateOrder = async (
   id: string,
-  userId: string,
-  productId: string,
-  quantity: number
+  { userId, productId, quantity }: Order,
 ): Promise<OrderModel> => {
   const prismaOrder = await prismaClient.order.update({
     where: { id },
