@@ -33,7 +33,7 @@ async function createUser(email: string, firebaseUid: string): Promise<User | nu
 async function createProduct(
   name: string,
   price: number,
-  quantity: number,
+  quantity: number
 ): Promise<Product | null> {
   try {
     return await prisma.product.create({ data: { name, price, quantity } });
@@ -64,6 +64,8 @@ async function main(): Promise<void> {
   await prisma.cart.deleteMany({});
   await prisma.product.deleteMany({});
   await prisma.user.deleteMany({});
+  await prisma.orderDetails.deleteMany({});
+  await prisma.userProfile.deleteMany({});
 
   // Create sample data
   const user1 = await createUser('user1@example.com', 'firebaseUid1');

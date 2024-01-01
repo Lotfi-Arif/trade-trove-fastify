@@ -154,7 +154,7 @@ export const deleteCart = async (userId: string): Promise<void> => {
 };
 
 // Update cart (general update if needed, e.g., updating a cart's special notes, etc.)
-export const updateCart = async (userId: string, updateData: any): Promise<CartModel> => {
+export const updateCart = async (userId: string, updateData: Cart): Promise<CartModel> => {
   const prismaCart = await prismaClient.cart.update({
     where: { userId },
     data: updateData,
